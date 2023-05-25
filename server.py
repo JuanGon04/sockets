@@ -3,6 +3,7 @@
 import socket
 from substitution_cipher import encrypt_substitution, decrypt_substitution
 from transposition_cipher import encrypt_transposition, decrypt_transposition
+from DES import encrypt_DES, decrypt_DES
 
 def encrypt(message, method):
     message_encrypt = ""
@@ -11,6 +12,9 @@ def encrypt(message, method):
     
     if method == 'transposicion':
         message_encrypt = encrypt_transposition(message)
+        
+    if method == 'des':
+        message_encrypt = encrypt_DES(message)
 
     return message_encrypt
 
@@ -21,6 +25,9 @@ def decrypt(message, method):
     
     if method == 'transposicion':
         message_decrypt = decrypt_transposition(message)
+        
+    if method == "des":
+        message_decrypt = decrypt_DES(message)
 
     return message_decrypt
 
@@ -41,7 +48,12 @@ def start_server():
         while True:
             try:
                 method_decrypt = client_socket.recv(1024).decode('utf-8')
-                message = client_socket.recv(1024).decode('utf-8')
+                
+                if method_decrypt=='des':
+                    message = client_socket.recv(1024)
+                else:
+                    message = client_socket.recv(1024).decode('utf-8')
+                                
                 message_decrypt = decrypt(message, method_decrypt)
                 if not message:
                     break
@@ -50,11 +62,11 @@ def start_server():
             
                 while True:
                     method_encrypt = input("Ingrese un metodo de cifrado: ").lower()
-                    
-                    if method_encrypt == 'sustitucion' or method_encrypt == 'transposicion':
+                    print(method_encrypt)
+                    if method_encrypt == 'sustitucion' or  'transposicion' or  'DES':
                         client_socket.send(method_encrypt.encode('utf-8'))
                         break
-                    
+                                        
                     else:
                         print("metodo incorrecto")
                 
