@@ -4,6 +4,12 @@ import socket
 from substitution_cipher import encrypt_substitution, decrypt_substitution
 from transposition_cipher import encrypt_transposition, decrypt_transposition
 from DES import encrypt_DES, decrypt_DES
+from rsa import encrypt1,decrypt1
+import rsa
+
+key = b'01234567'
+public_key  =  rsa.public_key
+private_key = rsa.private_key
 
 def encrypt(message, method):
     message_encrypt = ""
@@ -14,7 +20,10 @@ def encrypt(message, method):
         message_encrypt = encrypt_transposition(message)
         
     if method == 'des':
-        message_encrypt = encrypt_DES(message)
+        message_encrypt = encrypt_DES(key, message)
+        
+    if method == 'rsa':
+        message_encrypt = encrypt1(public_key,message)
 
     return message_encrypt
 
@@ -27,7 +36,10 @@ def decrypt(message, method):
         message_decrypt = decrypt_transposition(message)
         
     if method == "des":
-        message_decrypt = decrypt_DES(message)
+        message_decrypt = decrypt_DES(key, message)
+        
+    if method == 'rsa':
+        message_decrypt = decrypt1(private_key,message)
 
     return message_decrypt
 
@@ -63,18 +75,21 @@ def start_server():
                 while True:
                     method_encrypt = input("Ingrese un metodo de cifrado: ").lower()
                     print(method_encrypt)
-                    if method_encrypt == 'sustitucion' or  'transposicion' or  'DES':
+                    if method_encrypt == 'sustitucion' or  'transposicion' or  'DES' or 'rsa':
                         client_socket.send(method_encrypt.encode('utf-8'))
                         break
                                         
                     else:
                         print("metodo incorrecto")
-                
+                        
                 
                 response = input('Ingrese una respuesta al cliente: ')
                 message_encrypt = encrypt(response, method_encrypt)
                 print(message_encrypt)
-                client_socket.send(message_encrypt.encode('utf-8'))
+                if method_encrypt=='des':
+                    client_socket.send(message_encrypt)
+                else:
+                    client_socket.send(message_encrypt.encode('utf-8'))
 
             except UnicodeDecodeError:
                 print('Error al decodificar el mensaje.')

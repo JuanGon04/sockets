@@ -1,31 +1,27 @@
-from Crypto.Cipher import DES
-from secrets import token_bytes
+from Cryptodome.Cipher import DES
+from Cryptodome.Random import get_random_bytes
 
-key = token_bytes(8)
-nonce = ""
-tag = ""
+def pad(text):
+    # Completa el texto con espacios para que tenga una longitud múltiplo de 8
+    while len(text) % 8 != 0:
+        text += b' '
+    return text
 
-def encrypt_DES(message):
-    global nonce
-    global tag
-    cipher = DES.new(key, DES.MODE_EAX)
-    nonce =  cipher.nonce
-    ciphertext, tag  = cipher.encrypt_and_digest(message.encode('ascii'))
-    print("Dentro de encrypt "+ str(nonce))
+def encrypt_DES(key, plaintext):
+    cipher = DES.new(key, DES.MODE_ECB)
+    padded_plaintext = pad(plaintext.encode('utf-8'))
+    ciphertext = cipher.encrypt(padded_plaintext)
     return ciphertext
 
-def decrypt_DES(ciphertext):
-    global nonce 
-    nonce= nonce
-    global tag
-    tag=tag
-    print("Dentro de decrypt "+ str(nonce))
-    cipher = DES.new(key, DES.MODE_EAX, nonce=nonce)
-    plaintext = cipher.decrypt(ciphertext)
-    
-    try:
-        cipher.verify(tag)
-        return plaintext.decode('ascii')
-    except:
-        return False
+def decrypt_DES(key, ciphertext):
+    cipher = DES.new(key, DES.MODE_ECB)
+    padded_plaintext = cipher.decrypt(ciphertext)
+    return padded_plaintext.strip()
+
+# Generar una clave aleatoria de 8 bytes
+
+
+# Texto de prueba
+
+
     
